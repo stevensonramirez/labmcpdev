@@ -553,7 +553,7 @@
 <!-- HERO -->
 <div class="hero">
   <div class="hero-badge"><span class="dot"></span> Lab interactivo</div>
-  <h1>Apps de Dynatrace (App Engine)<br>con <span class="gradient">MCP de Desarrollo</span></h1>
+  <h1>De cero a app<br>en <span class="gradient">5 minutos</span></h1>
   <p>Conecta tu IDE con el MCP de desarrollo de Dynatrace y deja que la IA construya tu primera app.</p>
 </div>
 
@@ -665,22 +665,25 @@
             <span class="code-lang">prompt</span>
             <button class="code-copy" onclick="copyCode(this)">Copiar</button>
           </div>
-          <div class="code-body"><pre>Construye un dashboard de análisis de logs con estas secciones:
+          <div class="code-body"><pre>Usa las herramientas del MCP (dql_search, strato_get_component,
+sdk_get_doc) para construir una app de análisis de logs.
 
-1. Un gráfico de serie temporal que muestre la cantidad de logs
-   agrupados por estado (ERROR, WARN, INFO) en las últimas 2 horas.
+Reemplaza la página de bienvenida por defecto, la app debe
+cargar directo la funcionalidad. Incluye:
 
-2. Debajo, una tabla paginada con las columnas: timestamp,
-   estado, nombre del servicio (dt.entity.service) y contenido del log.
+- Selector de rango de tiempo (5 min por defecto, 10, 30, 1h, 2h)
+- Selector de límite de resultados (100 por defecto, 50, 200, 500)
+- Filtro multi-selección por estado (ERROR, WARN, INFO)
+- Gráfico de serie temporal de logs agrupados por estado
+- Tabla paginada: timestamp, estado, servicio, contenido
 
-3. Agrega un filtro de estado encima del gráfico que permita
-   seleccionar uno o más estados para filtrar tanto el gráfico
-   como la tabla.
+Todos los controles deben afectar tanto el gráfico como la tabla.
+Usa componentes de Strato.
 
-Usa componentes de Strato para todo.</pre></div>
+Al terminar, haz deploy y dame el link para abrir la app.</pre></div>
         </div>
         <div class="step-desc" style="margin-top: 0.75rem;">
-          Observa cómo la IA llama herramientas del MCP (<code>strato_get_component</code>, <code>dql_search</code>, <code>sdk_get_doc</code>, <code>strato_get_usecase_details</code>) para entender cómo armar el dashboard correctamente con componentes reales de la plataforma.
+          Observa cómo la IA llama herramientas del MCP (<code>strato_get_component</code>, <code>dql_search</code>, <code>sdk_get_doc</code>, <code>strato_get_usecase_details</code>) para entender cómo armar la app correctamente con componentes reales de la plataforma.
         </div>
         <div class="tip info">
           <span class="tip-icon">💡</span>
@@ -709,9 +712,26 @@ Usa componentes de Strato para todo.</pre></div>
           Se abre en el browser dentro del ambiente Dynatrace. Deberías ver algo como esto:
         </div>
         <div class="result-box">
-          <div class="result-header">Resultado esperado — Dashboard de Análisis de Logs</div>
+          <div class="result-header">Resultado esperado — App de Análisis de Logs</div>
           <div class="result-body">
-            <!-- Mock filters -->
+            <!-- Mock time range & limit selectors -->
+            <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 500;">Rango:</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(20,184,166,0.25);">5 min</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); border: 1px solid var(--border);">10 min</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); border: 1px solid var(--border);">30 min</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); border: 1px solid var(--border);">1h</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); border: 1px solid var(--border);">2h</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 500;">Límite:</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(20,184,166,0.25);">100</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); border: 1px solid var(--border);">200</span>
+                <span style="padding: 0.25rem 0.6rem; border-radius: 5px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); border: 1px solid var(--border);">500</span>
+              </div>
+            </div>
+            <!-- Mock status filters -->
             <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
               <span style="padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-family: var(--font-mono); background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.25);">● ERROR</span>
               <span style="padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-family: var(--font-mono); background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25);">● WARN</span>
@@ -792,7 +812,7 @@ Usa componentes de Strato para todo.</pre></div>
               </tbody>
             </table>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">
-              <span>Mostrando 1–4 de 1,247</span>
+              <span>Mostrando 1–4 de 100</span>
               <span style="display: flex; gap: 0.4rem;">
                 <span style="padding: 0.2rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; opacity: 0.4;">← Ant</span>
                 <span style="padding: 0.2rem 0.5rem; border: 1px solid var(--accent); border-radius: 4px; color: var(--accent);">Sig →</span>
@@ -818,16 +838,18 @@ Usa componentes de Strato para todo.</pre></div>
           </div>
           <div class="code-body"><pre><span class="comment">// Detalle al hacer clic</span>
 <span class="string">Cuando haga clic en una fila de la tabla, abre un panel
-lateral que muestre el registro completo del log con todos
-sus atributos.</span>
+lateral dentro de la app que muestre el registro completo
+del log con todos sus atributos.</span>
 
-<span class="comment">// Métricas de servicio</span>
-<span class="string">Agrega una segunda página a la app que muestre el tiempo
-de respuesta y la tasa de error por servicio, usando métricas.</span>
+<span class="comment">// Nueva página: métricas de servicio</span>
+<span class="string">Agrega una segunda página a la app con navegación entre
+páginas. La nueva página debe mostrar el tiempo de respuesta
+y la tasa de error por servicio, usando métricas.</span>
 
-<span class="comment">// Problemas activos</span>
-<span class="string">Agrega un banner superior que muestre la cantidad de problemas
-activos de Davis con un enlace al feed de problemas.</span></pre></div>
+<span class="comment">// Header con contexto</span>
+<span class="string">Agrega un header a la app que muestre la cantidad de
+problemas activos de Davis y un resumen del total de logs
+por estado en el rango de tiempo seleccionado.</span></pre></div>
         </div>
         <div class="tip info">
           <span class="tip-icon">🔑</span>
