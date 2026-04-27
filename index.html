@@ -214,6 +214,7 @@
     width: 2px;
     background: linear-gradient(to bottom, var(--accent), var(--border) 50%, var(--border));
     border-radius: 1px;
+    z-index: 1;
   }
   .step {
     position: relative;
@@ -238,10 +239,11 @@
     transition: all 0.3s;
   }
   .step:hover .step-number {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-dim);
-    box-shadow: 0 0 20px var(--accent-glow);
+    border-color: #38bdf8;
+    color: #fff;
+    background: #38bdf8;
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
+    transform: scale(1.12);
   }
   .step-content {
     background: var(--bg-card);
