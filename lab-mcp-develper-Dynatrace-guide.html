@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab · Tu primera app con IA + MCP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e13;
+    --bg-card: #13161d;
+    --bg-card-hover: #181c25;
+    --bg-code: #0a0c10;
+    --border: #1e2330;
+    --border-active: #2a3040;
+    --text: #c8cdd8;
+    --text-muted: #6b7280;
+    --text-bright: #eef0f4;
+    --accent: #14b8a6;
+    --accent-dim: rgba(20, 184, 166, 0.12);
+    --accent-glow: rgba(20, 184, 166, 0.25);
+    --warning: #f59e0b;
+    --warning-dim: rgba(245, 158, 11, 0.1);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167, 139, 250, 0.1);
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- NAV --- */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 2rem;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(12, 14, 19, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand {
+    font-weight: 700; font-size: 0.85rem; letter-spacing: 0.04em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .nav-brand span { color: var(--accent); }
+  .nav-tabs {
+    display: flex; gap: 0.25rem;
+  }
+  .nav-tab {
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    background: none;
+    font-family: var(--font-body);
+  }
+  .nav-tab:hover { color: var(--text); background: var(--bg-card); }
+  .nav-tab.active {
+    color: var(--accent);
+    background: var(--accent-dim);
+    border-color: rgba(20, 184, 166, 0.2);
+  }
+  .nav-tab.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    padding: 8rem 2rem 3rem;
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 60px; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(20, 184, 166, 0.15);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.02em;
+  }
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--text-bright);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--accent), #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 540px;
+    margin: 0 auto;
+    font-weight: 300;
+  }
+
+  /* --- SECTION --- */
+  .section {
+    display: none;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+  .section.active { display: block; }
+
+  /* --- PREREQS --- */
+  .prereqs {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 3rem;
+  }
+  .prereqs-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .prereq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+  @media (max-width: 600px) {
+    .prereq-grid { grid-template-columns: 1fr; }
+  }
+  .prereq-item {
+    display: flex; align-items: center; gap: 0.65rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .prereq-item .icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .prereq-item .icon.green { background: var(--accent-dim); color: var(--accent); }
+  .prereq-item .icon.purple { background: var(--purple-dim); color: var(--purple); }
+  .prereq-item code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.05);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* --- TIMELINE / STEPS --- */
+  .timeline {
+    position: relative;
+    padding-left: 5rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 48px;
+    bottom: 48px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--border) 50%, var(--border));
+    border-radius: 1px;
+  }
+  .step {
+    position: relative;
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.5s ease-out both;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-number {
+    position: absolute;
+    left: -5rem;
+    top: -2px;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    z-index: 2;
+    transition: all 0.3s;
+  }
+  .step:hover .step-number {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .step-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.35rem 1.5rem;
+    transition: all 0.25s;
+  }
+  .step:hover .step-content {
+    border-color: var(--border-active);
+    background: var(--bg-card-hover);
+  }
+  .step-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .step-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .step-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+    line-height: 1.65;
+  }
+  .step-desc a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(20,184,166,0.3);
+    transition: border-color 0.2s;
+  }
+  .step-desc a:hover { border-color: var(--accent); }
+
+  /* --- CODE BLOCK --- */
+  .code-block {
+    position: relative;
+    margin-top: 0.85rem;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.4rem 0.8rem;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-lang {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .code-copy {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .code-copy:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .code-copy.copied {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .code-body {
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+  }
+  .code-body pre {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre;
+    margin: 0;
+  }
+  .code-body .comment { color: #4a5568; }
+  .code-body .string { color: #38bdf8; }
+  .code-body .key { color: var(--purple); }
+  .code-body .cmd { color: var(--accent); }
+
+  /* --- TIP BOX --- */
+  .tip {
+    display: flex; gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    margin-top: 0.85rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  .tip.info {
+    background: var(--accent-dim);
+    border: 1px solid rgba(20,184,166,0.15);
+    color: var(--accent);
+  }
+  .tip.warn {
+    background: var(--warning-dim);
+    border: 1px solid rgba(245,158,11,0.15);
+    color: var(--warning);
+  }
+  .tip .tip-icon { flex-shrink: 0; font-size: 0.9rem; }
+
+  /* --- RESULT PREVIEW --- */
+  .result-box {
+    margin-top: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .result-header {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+  }
+  .result-body {
+    padding: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .result-body .mock-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .result-body .mock-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-body .mock-table td {
+    padding: 0.55rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text);
+  }
+  .result-body .mock-table tr:last-child td { border-bottom: none; }
+  .result-body .mock-table .log-error { color: #f87171; }
+  .result-body .mock-table .log-warn { color: var(--warning); }
+  .result-body .mock-table .log-info { color: #38bdf8; }
+
+  /* --- FOOTER --- */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+  }
+
+  /* --- ANIMATIONS --- */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .step:nth-child(1) { animation-delay: 0.05s; }
+  .step:nth-child(2) { animation-delay: 0.1s; }
+  .step:nth-child(3) { animation-delay: 0.15s; }
+  .step:nth-child(4) { animation-delay: 0.2s; }
+  .step:nth-child(5) { animation-delay: 0.25s; }
+  .step:nth-child(6) { animation-delay: 0.3s; }
+
+  /* --- RESPONSIVE --- */
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 2rem; }
+    .hero { padding: 7rem 1.25rem 2rem; }
+    .section { padding: 0 1.25rem 4rem; }
+    .timeline { padding-left: 4rem; }
+    .step-number { left: -4rem; width: 42px; height: 42px; font-size: 1rem; }
+    .nav { padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">Lab <span>·</span> Desarrollo de Apps con IA</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-section="quickstart">⚡ Inicio Rápido</button>
+    <button class="nav-tab disabled" data-section="complete" title="Próximamente">📖 Guía Completa</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span> Lab interactivo</div>
+  <h1>De cero a app<br>en <span class="gradient">5 minutos</span></h1>
+  <p>Conecta tu IDE con el MCP de desarrollo de Dynatrace y deja que la IA construya tu primera app.</p>
+</div>
+
+<!-- QUICK START SECTION -->
+<section class="section active" id="quickstart">
+
+  <!-- PREREQS -->
+  <div class="prereqs">
+    <div class="prereqs-title">Prerequisitos — tener esto listo antes de empezar</div>
+    <div class="prereq-grid">
+      <div class="prereq-item">
+        <div class="icon green">⬢</div>
+        <div><strong>Node.js</strong> <code>v18+</code></div>
+      </div>
+      <div class="prereq-item">
+        <div class="icon purple">⌨</div>
+        <div><strong>VS Code</strong> <code>v1.102+</code></div>
+      </div>
+      <div class="prereq-item">
+        <div class="icon green">🤖</div>
+        <div><strong>GitHub Copilot</strong> o chat IA en VS Code</div>
+      </div>
+      <div class="prereq-item">
+        <div class="icon purple">🔑</div>
+        <div>Acceso a un <strong>ambiente Platform</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="timeline">
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <div class="step-label">Extensión</div>
+        <div class="step-title">Instalar la extensión Dynatrace Apps</div>
+        <div class="step-desc">
+          En VS Code, abre el panel de extensiones (<code>⌘⇧X</code> / <code>Ctrl+Shift+X</code>), busca <strong>"Dynatrace"</strong> e instala <strong>Dynatrace Apps</strong>. Necesitas la versión <strong>0.35.0 o superior</strong> — esta versión incluye el MCP server automáticamente.
+        </div>
+        <div class="tip info">
+          <span class="tip-icon">💡</span>
+          <span>No hay que configurar nada del MCP manualmente. La extensión lo registra por ti.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <div class="step-label">Proyecto</div>
+        <div class="step-title">Crear el proyecto base</div>
+        <div class="step-desc">
+          Abre la terminal integrada de VS Code y ejecuta:
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">terminal</span>
+            <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><span class="cmd">npx</span> dt-app create mi-primera-app</pre></div>
+        </div>
+        <div class="step-desc" style="margin-top: 0.75rem;">
+          Luego abre la carpeta del proyecto:
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">terminal</span>
+            <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><span class="cmd">cd</span> mi-primera-app && <span class="cmd">code</span> .</pre></div>
+        </div>
+        <div class="tip info">
+          <span class="tip-icon">💡</span>
+          <span>El toolkit genera un <code>AGENTS.md</code> automáticamente. No necesitas tocarlo — le da contexto extra a la IA sobre el proyecto.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <div class="step-label">Verificar</div>
+        <div class="step-title">Confirmar que el MCP está activo</div>
+        <div class="step-desc">
+          Abre el Command Palette (<code>⌘⇧P</code> / <code>Ctrl+Shift+P</code>) y escribe <strong>MCP: List Servers</strong>. Deberías ver <code>dynatrace-apps</code> en la lista con sus herramientas habilitadas.
+        </div>
+        <div class="tip warn">
+          <span class="tip-icon">⚠️</span>
+          <span>Si no aparece, verifica que la extensión Dynatrace Apps sea <strong>v0.35.0+</strong> y reinicia VS Code.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <div class="step-label">La magia</div>
+        <div class="step-title">Pedirle a la IA que construya la app</div>
+        <div class="step-desc">
+          Abre el chat de tu asistente de IA en VS Code y pega este prompt:
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">prompt</span>
+            <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre>Construye un dashboard de análisis de logs con estas secciones:
+
+1. Un gráfico de serie temporal que muestre la cantidad de logs
+   agrupados por estado (ERROR, WARN, INFO) en las últimas 2 horas.
+
+2. Debajo, una tabla paginada con las columnas: timestamp,
+   estado, nombre del servicio (dt.entity.service) y contenido del log.
+
+3. Agrega un filtro de estado encima del gráfico que permita
+   seleccionar uno o más estados para filtrar tanto el gráfico
+   como la tabla.
+
+Usa componentes de Strato para todo.</pre></div>
+        </div>
+        <div class="step-desc" style="margin-top: 0.75rem;">
+          Observa cómo la IA llama herramientas del MCP (<code>strato_get_component</code>, <code>dql_search</code>, <code>sdk_get_doc</code>, <code>strato_get_usecase_details</code>) para entender cómo armar el dashboard correctamente con componentes reales de la plataforma.
+        </div>
+        <div class="tip info">
+          <span class="tip-icon">💡</span>
+          <span>Usa un modelo capaz: <strong>Claude Sonnet 4.6</strong> o <strong>Opus 4.6</strong> dan los mejores resultados. GPT-4o también funciona.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <div class="step-label">Vista previa</div>
+        <div class="step-title">Ver tu app en acción</div>
+        <div class="step-desc">
+          Una vez que la IA genere los archivos, lanza el preview local:
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">terminal</span>
+            <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><span class="cmd">npx</span> dt-app deploy --local</pre></div>
+        </div>
+        <div class="step-desc" style="margin-top: 0.75rem;">
+          Se abre en el browser dentro del ambiente Dynatrace. Deberías ver algo como esto:
+        </div>
+        <div class="result-box">
+          <div class="result-header">Resultado esperado — Dashboard de Análisis de Logs</div>
+          <div class="result-body">
+            <!-- Mock filters -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+              <span style="padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-family: var(--font-mono); background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.25);">● ERROR</span>
+              <span style="padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-family: var(--font-mono); background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25);">● WARN</span>
+              <span style="padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.7rem; font-family: var(--font-mono); background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.25);">● INFO</span>
+            </div>
+            <!-- Mock chart -->
+            <div style="height: 120px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 1rem; padding: 0.75rem; display: flex; align-items: flex-end; gap: 3px; background: var(--bg-code); overflow: hidden;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #38bdf8; height: 55%; border-radius: 2px 2px 0 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #f59e0b; height: 12%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #38bdf8; height: 48%; border-radius: 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #f87171; height: 8%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #f59e0b; height: 15%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #38bdf8; height: 42%; border-radius: 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #f87171; height: 22%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #f59e0b; height: 18%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #38bdf8; height: 35%; border-radius: 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #f87171; height: 38%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #f59e0b; height: 20%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #38bdf8; height: 30%; border-radius: 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #f87171; height: 15%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #f59e0b; height: 10%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #38bdf8; height: 60%; border-radius: 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #f59e0b; height: 8%; border-radius: 0; opacity: 0.8;"></div>
+                <div style="background: #38bdf8; height: 52%; border-radius: 0; opacity: 0.8;"></div>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; height: 100%; justify-content: flex-end;">
+                <div style="background: #38bdf8; height: 45%; border-radius: 2px 2px 0 0; opacity: 0.8;"></div>
+              </div>
+            </div>
+            <!-- Mock table -->
+            <table class="mock-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Estado</th>
+                  <th>Servicio</th>
+                  <th>Contenido</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>09:47:02</td>
+                  <td class="log-error">ERROR</td>
+                  <td>payment-svc</td>
+                  <td>Timeout de conexión a downstream:8443</td>
+                </tr>
+                <tr>
+                  <td>09:46:58</td>
+                  <td class="log-warn">WARN</td>
+                  <td>order-svc</td>
+                  <td>Reintento 3/5 para procesamiento de lote</td>
+                </tr>
+                <tr>
+                  <td>09:46:41</td>
+                  <td class="log-info">INFO</td>
+                  <td>auth-svc</td>
+                  <td>Health check exitoso — latencia 12ms</td>
+                </tr>
+                <tr>
+                  <td>09:46:22</td>
+                  <td class="log-info">INFO</td>
+                  <td>gateway</td>
+                  <td>Despliegue v2.4.1 completado</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">
+              <span>Mostrando 1–4 de 1,247</span>
+              <span style="display: flex; gap: 0.4rem;">
+                <span style="padding: 0.2rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; opacity: 0.4;">← Ant</span>
+                <span style="padding: 0.2rem 0.5rem; border: 1px solid var(--accent); border-radius: 4px; color: var(--accent);">Sig →</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+      <div class="step-number">6</div>
+      <div class="step-content">
+        <div class="step-label">Iterar</div>
+        <div class="step-title">Sigue experimentando</div>
+        <div class="step-desc">
+          Ahora que tienes la base, prueba pedirle cosas más complejas a la IA:
+        </div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">ideas de prompts</span>
+          </div>
+          <div class="code-body"><pre><span class="comment">// Detalle al hacer clic</span>
+<span class="string">Cuando haga clic en una fila de la tabla, abre un panel
+lateral que muestre el registro completo del log con todos
+sus atributos.</span>
+
+<span class="comment">// Métricas de servicio</span>
+<span class="string">Agrega una segunda página a la app que muestre el tiempo
+de respuesta y la tasa de error por servicio, usando métricas.</span>
+
+<span class="comment">// Problemas activos</span>
+<span class="string">Agrega un banner superior que muestre la cantidad de problemas
+activos de Davis con un enlace al feed de problemas.</span></pre></div>
+        </div>
+        <div class="tip info">
+          <span class="tip-icon">🔑</span>
+          <span>La IA tiene acceso a toda la documentación de Strato, SDKs y DQL a través del MCP. No necesitas saber los APIs de memoria — solo describe lo que quieres.</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+</section>
+
+<!-- COMPLETE SECTION (placeholder) -->
+<section class="section" id="complete">
+  <div style="text-align: center; padding: 4rem 0;">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚧</div>
+    <h2 style="color: var(--text-bright); font-size: 1.4rem; margin-bottom: 0.5rem;">Próximamente</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">La guía completa con AGENTS.md, troubleshooting avanzado y mejores prácticas.</p>
+  </div>
+</section>
+
+<footer class="footer">
+  Lab interno · Desarrollo de Apps con IA + MCP · 2026
+</footer>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.nav-tab:not(.disabled)').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.section).classList.add('active');
+    });
+  });
+
+  // Copy to clipboard
+  function copyCode(btn) {
+    const code = btn.closest('.code-block').querySelector('pre').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copiar';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
