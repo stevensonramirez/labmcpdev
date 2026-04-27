@@ -420,6 +420,102 @@
     border-top: 1px solid var(--border);
   }
 
+  /* --- MODAL --- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 560px;
+    width: 100%;
+    padding: 1.75rem 2rem;
+    position: relative;
+    animation: modalIn 0.2s ease-out;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    font-family: var(--font-body);
+  }
+  .modal-close:hover {
+    color: var(--text-bright);
+    border-color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+  }
+  .modal h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 1rem;
+    padding-right: 2rem;
+  }
+  .modal p {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.65;
+    margin-bottom: 0.75rem;
+  }
+  .modal p:last-child { margin-bottom: 0; }
+  .modal .modal-section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .modal .modal-section-label:first-of-type { margin-top: 0.5rem; }
+
+  /* --- CLICKABLE PREREQ --- */
+  .prereq-item.clickable {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .prereq-item.clickable:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .prereq-item.clickable::after {
+    content: '?';
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(20,184,166,0.2);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
   /* --- ANIMATIONS --- */
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(16px); }
@@ -457,7 +553,7 @@
 <!-- HERO -->
 <div class="hero">
   <div class="hero-badge"><span class="dot"></span> Lab interactivo</div>
-  <h1>Apps de Dynatrace (App Engine)<br>con <span class="gradient">MCP de Desarrollo</span></h1>
+  <h1>De cero a app<br>en <span class="gradient">5 minutos</span></h1>
   <p>Conecta tu IDE con el MCP de desarrollo de Dynatrace y deja que la IA construya tu primera app.</p>
 </div>
 
@@ -468,7 +564,7 @@
   <div class="prereqs">
     <div class="prereqs-title">Prerequisitos — tener esto listo antes de empezar</div>
     <div class="prereq-grid">
-      <div class="prereq-item">
+      <div class="prereq-item clickable" onclick="document.getElementById('node-modal').classList.add('open')">
         <div class="icon green">⬢</div>
         <div><strong>Node.js</strong> <code>v18+</code></div>
       </div>
@@ -757,7 +853,51 @@ activos de Davis con un enlace al feed de problemas.</span></pre></div>
   Lab interno · Desarrollo de Apps con IA + MCP · 2026
 </footer>
 
+<!-- NODE.JS MODAL -->
+<div class="modal-overlay" id="node-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('node-modal').classList.remove('open')">✕</button>
+    <h3>⬢ Verificar Node.js y npx</h3>
+
+    <div class="modal-section-label">Verificar Node.js</div>
+    <p>Abre una terminal y ejecuta:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">terminal</span>
+        <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <div class="code-body"><pre><span class="cmd">node</span> --version</pre></div>
+    </div>
+    <p style="margin-top: 0.6rem;">Si devuelve <code style="font-family:var(--font-mono);font-size:0.78rem;background:rgba(255,255,255,0.05);padding:0.1rem 0.35rem;border-radius:3px;color:var(--accent);">v18.x.x</code> o superior, estás bien.</p>
+
+    <div class="modal-section-label">Verificar npx</div>
+    <p>npx viene incluido con Node.js. Confirma que funciona:</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">terminal</span>
+        <button class="code-copy" onclick="copyCode(this)">Copiar</button>
+      </div>
+      <div class="code-body"><pre><span class="cmd">npx</span> --version</pre></div>
+    </div>
+
+    <div class="modal-section-label">Si no lo tienes instalado</div>
+    <p>Descárgalo desde <a href="https://nodejs.org" target="_blank" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(20,184,166,0.3);">nodejs.org</a> — elige la versión <strong>LTS</strong>. Después de instalar, cierra y vuelve a abrir la terminal para que tome efecto, y verifica de nuevo con los comandos anteriores.</p>
+
+    <div class="tip info" style="margin-top: 1rem;">
+      <span class="tip-icon">💡</span>
+      <span>Si usas Mac con Homebrew, también puedes instalarlo con <code style="font-family:var(--font-mono);font-size:0.75rem;background:rgba(255,255,255,0.05);padding:0.1rem 0.35rem;border-radius:3px;color:var(--accent);">brew install node</code></span>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Close modal on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.getElementById('node-modal').classList.remove('open');
+    }
+  });
+
   // Tab switching
   document.querySelectorAll('.nav-tab:not(.disabled)').forEach(tab => {
     tab.addEventListener('click', () => {
